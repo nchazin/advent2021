@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"strings"
 )
 
 func main() {
@@ -16,30 +17,42 @@ func main() {
 	defer file.Close()
 
 	scanner := bufio.NewScanner(file)
-/*
-	var numbers []int
-
+	var commands []string
 	for scanner.Scan() {
-		var val int
-		val, _ = strconv.Atoi(scanner.Text())
-		numbers = append(numbers, val)
+		commands = append(commands, scanner.Text())
 	}
-*/
+	fmt.Println(p1(commands))
 
 }
 
-/*
-func pass() (str, int) {
-	return "foo", 3
-}
-*/
+func p1(commands []string) int {
+	curx, cury := 0, 0
+	for _, command := range commands {
+		dir, distance := get_movement(command)
+		if dir == "forward" {
+			curx += distance
+		} else if dir == "up" {
+			cury -= distance
+		} else if dir == "down" {
+			cury += distance
+		}
 
-/*
-func get_movement(command str) {
+	}
+	fmt.Println("Curx ", curx, " Cury ", cury)
+	return curx * cury
+}
+
+func p2(commands []string) int {
+	curx, cury, aim : = 0,0, 0
+	return 0
+}
+
+func get_movement(command string) (string, int) {
+	var distance int
 	tokens := strings.Fields(command)
 
-        dir := tokens[0]
-        distance, _ := strconv(Atoi(tokens[1])
-	fmt.Println(dir, distance)
+	dir := tokens[0]
+
+	distance, _ = strconv.Atoi(tokens[1])
+	return dir, distance
 }
-*/
