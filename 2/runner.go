@@ -22,6 +22,7 @@ func main() {
 		commands = append(commands, scanner.Text())
 	}
 	fmt.Println(p1(commands))
+	fmt.Println(p2(commands))
 
 }
 
@@ -43,8 +44,21 @@ func p1(commands []string) int {
 }
 
 func p2(commands []string) int {
-	curx, cury, aim : = 0,0, 0
-	return 0
+	curx, cury, aim := 0, 0, 0
+	for _, command := range commands {
+		dir, distance := get_movement(command)
+		if dir == "forward" {
+			curx += distance
+			cury += aim * distance
+		} else if dir == "up" {
+			aim -= distance
+		} else if dir == "down" {
+			aim += distance
+		}
+
+	}
+	fmt.Println("Curx ", curx, " Cury ", cury)
+	return curx * cury
 }
 
 func get_movement(command string) (string, int) {
