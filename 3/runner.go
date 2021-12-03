@@ -27,7 +27,29 @@ func main() {
 }
 
 func p1(numbers []string) int64 {
-	//assume all are the same lenght as the first
+	zeros, ones := counters(numbers)
+
+	gamma := ""
+	epsilon := ""
+	bits := len([]rune(numbers[0]))
+	for i := 0; i < bits; i++ {
+		if zeros[i] > ones[i] {
+			gamma = gamma + "0"
+			epsilon = epsilon + "1"
+		} else {
+			gamma = gamma + "1"
+			epsilon = epsilon + "0"
+
+		}
+	}
+	fmt.Println(gamma, " --- ", epsilon)
+	gammaval, _ := strconv.ParseInt(gamma, 2, 64)
+	epsilonval, _ := strconv.ParseInt(epsilon, 2, 64)
+	fmt.Println(gammaval, " --- ", epsilonval)
+	return gammaval * epsilonval
+}
+
+func counters(numbers []string) ([]int, []int) {
 	bits := len([]rune(numbers[0]))
 
 	var zeros []int
@@ -49,27 +71,67 @@ func p1(numbers []string) int64 {
 
 	}
 
-	gamma := ""
-	epsilon := ""
-	for i := 0; i < bits; i++ {
-		if zeros[i] > ones[i] {
-			gamma = gamma + "0"
-			epsilon = epsilon + "1"
-		} else {
-			gamma = gamma + "1"
-			epsilon = epsilon + "0"
-
-		}
-	}
-	fmt.Println(gamma, " --- ", epsilon)
-	gammaval, _ := strconv.ParseInt(gamma, 2, 64)
-	epsilonval, _ := strconv.ParseInt(epsilon, 2, 64)
-	fmt.Println(gammaval, " --- ", epsilonval)
-	return gammaval * epsilonval
+	return zeros, ones
 }
 
-func p2(commands []string) int64 {
-	return 0
+func p2(numbers []string) int64 {
+
+	bits := len([]rune(numbers[0]))
+
+	oldnumbers := numbers
+
+	var zeros []int
+	var ones []int
+	//oxygen
+	for i := 0; i < bits; i++ {
+		zeros, ones = counters(oldnumbers)
+		var newnumbers []string
+
+		var mask byte
+		if ones[i] >= zeros[i] {
+			mask = '1'
+		} else {
+			mask = '0'
+		}
+		for _, number := range oldnumbers {
+			if number[i] == mask {
+				newnumbers = append(newnumbers, number)
+			}
+		}
+		oldnumbers = newnumbers
+		if len(oldnumbers) == 1 {
+			break
+		}
+	}
+	oxygen, _ := strconv.ParseInt(oldnumbers[0], 2, 64)
+
+	//co2
+	oldnumbers = numbers
+	for i := 0; i < bits; i++ {
+		zeros, ones = counters(oldnumbers)
+		var newnumbers []string
+
+		var mask byte
+		if zeros[i] <= ones[i] {
+			mask = '0'
+		} else {
+			mask = '1'
+		}
+		for _, number := range oldnumbers {
+			if number[i] == mask {
+				newnumbers = append(newnumbers, number)
+			}
+		}
+		oldnumbers = newnumbers
+		if len(oldnumbers) == 1 {
+			break
+		}
+	}
+
+	co2, _ := strconv.ParseInt(oldnumbers[0], 2, 64)
+
+	return oxygen * co2
+
 }
 
 /*
