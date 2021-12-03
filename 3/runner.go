@@ -6,7 +6,6 @@ import (
 	"log"
 	"os"
 	"strconv"
-	//	"strings"
 )
 
 func main() {
@@ -50,28 +49,29 @@ func p1(numbers []string) int64 {
 }
 
 func counters(numbers []string) ([]int, []int) {
-	bits := len([]rune(numbers[0]))
-
-	var zeros []int
-	var ones []int
-
-	for i := 0; i < bits; i++ {
-		zeros = append(zeros, 0)
-		ones = append(ones, 0)
-	}
-
-	for _, number := range numbers {
-		for i, c := range number {
-			if c == '1' {
+	numbits := len([]rune(numbers[0]))
+	zeros := make([]int, numbits, numbits)
+	ones := make([]int, numbits, numbits)
+	for _, numberstr := range numbers {
+		number, _ := strconv.ParseInt(numberstr, 2, 32)
+		andmask := setbit(0, numbits-1)
+		for i := 0; i < numbits; i++ {
+			if (int(number) & andmask) == andmask {
 				ones[i] += 1
 			} else {
 				zeros[i] += 1
 			}
+			andmask = andmask >> 1
 		}
-
 	}
 
 	return zeros, ones
+}
+
+func setbit(bits int, pos int) int {
+	mask := (1 << pos)
+	bits |= mask
+	return bits
 }
 
 func p2(numbers []string) int64 {
@@ -133,32 +133,3 @@ func p2(numbers []string) int64 {
 	return oxygen * co2
 
 }
-
-/*
-	curx, cury, aim := 0, 0, 0
-	for _, command := range commands {
-		dir, distance := get_movement(command)
-		if dir == "forward" {
-			curx += distance
-			cury += aim * distance
-		} else if dir == "up" {
-			aim -= distance
-		} else if dir == "down" {
-			aim += distance
-		}
-
-	}
-	fmt.Println("Curx ", curx, " Cury ", cury)
-	return curx * cury
-}
-
-func get_movement(command string) (string, int) {
-	var distance int
-	tokens := strings.Fields(command)
-
-	dir := tokens[0]
-
-	distance, _ = strconv.Atoi(tokens[1])
-	return dir, distance
-}
-*/
