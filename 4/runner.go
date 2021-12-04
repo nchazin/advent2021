@@ -18,7 +18,6 @@ func (b *Board) mark(number int) {
 	for i := 0; i < 25; i++ {
 		if b.numbers[i] == number {
 			b.marks[i] = true
-			fmt.Printf("Marked %d at %d\n", number, i)
 			break
 		}
 	}
@@ -79,24 +78,18 @@ func getcalls(line string) []int {
 }
 
 func makeboard(lines []string) *Board {
-	fmt.Printf("%s\n", lines)
-	fmt.Println("-------------")
 	b := Board{}
 	for i := 0; i < 5; i++ {
 		line := lines[i]
-		fmt.Println("Line: ", line)
 		vals := make([]int, 0)
 		for j := 0; j < 15; j += 3 {
-			fmt.Println("...", strings.Trim(line[j:j+2], " "))
 			val, _ := strconv.Atoi(strings.Trim(line[j:j+2], " "))
-			fmt.Println("adding: ", val)
 			vals = append(vals, val)
 		}
 		for j, val := range vals {
 			b.numbers[(5*i)+j] = val
 		}
 	}
-	fmt.Println(b.numbers)
 	return &b
 }
 
@@ -113,7 +106,6 @@ func main() {
 		lines = append(lines, scanner.Text())
 	}
 	calls := getcalls(lines[0])
-	fmt.Println("Calls: ", calls)
 	boards := make([]*Board, 0)
 	for i := 2; i < len(lines); i += 6 {
 		board := makeboard(lines[i : i+5])
@@ -121,7 +113,6 @@ func main() {
 	}
 	score := 0
 	for _, call := range calls {
-		fmt.Println("Calling: ", call)
 		for _, board := range boards {
 			board.mark(call)
 			if board.bingo() {
@@ -133,6 +124,30 @@ func main() {
 			break
 		}
 	}
-	fmt.Println(score)
+	fmt.Println("1: ", score)
+
+	//part 2
+	won := make([]bool, len(boards))
+	wins := 0
+	score = 0
+	for _, call := range calls {
+		for i, board := range boards {
+			if won[i] {
+				continue
+			}
+			board.mark(call)
+			if board.bingo() {
+				won[i] = true
+				wins += 1
+				if wins == len(boards) {
+					score = board.score(call)
+				}
+			}
+		}
+		if score != 0 {
+			break
+		}
+	}
+	fmt.Println("2: ", score)
 
 }
