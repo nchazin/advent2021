@@ -1,14 +1,19 @@
 package main
 
-import "fmt"
+import (
+	"bufio"
+	"fmt"
+	"log"
+	"os"
+	"strconv"
+	"strings"
+)
 
 func makefish(fishschool map[int]int, days int) map[int]int {
-	fmt.Printf("START Day: %d len %v\n", 0, fishschool)
 	for day := 1; day <= days; day++ {
 		newschool := make(map[int]int)
 		for timer, count := range fishschool {
 			if timer == 0 {
-				//fmt.Println("Hello ", count)
 				newschool[6] += count
 				newschool[8] += count
 			} else {
@@ -17,29 +22,35 @@ func makefish(fishschool map[int]int, days int) map[int]int {
 
 		}
 		fishschool = newschool
-		fmt.Printf("Day: %d len %v\n", day, fishschool)
 	}
 
 	return fishschool
 }
 
 func main() {
+	file, err := os.Open("input.txt")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
+
 	fishschool := make(map[int]int)
-	fishschool[3] = 2
-	fishschool[4] = 1
-	fishschool[1] = 1
-	fishschool[2] = 1
 
-	finalschool := makefish(fishschool, 18)
-	fmt.Println(finalschool)
-	fmt.Println(count_fish(finalschool))
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		fishes := strings.Split(scanner.Text(), ",")
+		for _, fish := range fishes {
+			fishtimer, _ := strconv.Atoi(fish)
+			fishschool[fishtimer]++
+		}
+	}
 
-	finalschool = makefish(fishschool, 80)
-	fmt.Println(finalschool)
-	fmt.Println(count_fish(finalschool))
+	fmt.Println(countfish(makefish(fishschool, 80)))
+	fmt.Println(countfish(makefish(fishschool, 256)))
+
 }
 
-func count_fish(fishschool map[int]int) int {
+func countfish(fishschool map[int]int) int {
 	size := 0
 
 	for _, count := range fishschool {
