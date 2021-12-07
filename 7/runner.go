@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"log"
+	"math"
 	"os"
 	"sort"
 	"strconv"
@@ -44,6 +45,40 @@ func calculate_min_fuel(locs []int) int {
 	return fuel
 }
 
+func calc_mean(locs []int) int {
+	sum := 0
+	for _, l := range locs {
+		sum += l
+	}
+	return int(math.Round(float64(sum) / float64(len(locs))))
+}
+
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
+}
+
+func calculate_min_fuel_complicated(locs []int) int {
+	mean := calc_mean(locs)
+
+	fuel1 := 0
+	fuel2 := 0
+	for _, loc := range locs {
+		// should this be floor or ceiling? too tired to see...
+		distance1 := int_abs(loc - mean)
+		distance2 := int_abs(loc - mean + 1)
+		fuelunits1 := distance1 * (1 + distance1) / 2
+		fuelunits2 := distance2 * (1 + distance2) / 2
+		fuel1 += fuelunits1
+		fuel2 += fuelunits2
+
+	}
+
+	return min(fuel1, fuel2)
+}
+
 func main() {
 	file, err := os.Open("input.txt")
 	if err != nil {
@@ -61,4 +96,5 @@ func main() {
 		}
 	}
 	fmt.Println(calculate_min_fuel(locs))
+	fmt.Println(calculate_min_fuel_complicated(locs))
 }
