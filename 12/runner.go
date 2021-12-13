@@ -8,18 +8,20 @@ import (
 	"strings"
 )
 
-func cave_in_path(cave string, path []string) bool {
+func count_cave_in_path(cave string, path []string) int {
+	count := 0
 	for _, c := range path {
 		if c == cave {
-			return true
+			count++
 		}
 	}
-	return false
+	//	fmt.Printf("Count for %s in %s is %d\n", cave, path, count)
+	return count
 }
 
 var paths [][]string
 
-func find_paths(cavemap map[string][]string, cave string, path []string) {
+func find_paths(cavemap map[string][]string, cave string, path []string, max_count int) {
 	//fmt.Println("Called with", cave)
 	if cave == "start" && len(path) > 0 {
 		//	fmt.Println("Skipping start from second pass")
@@ -30,14 +32,19 @@ func find_paths(cavemap map[string][]string, cave string, path []string) {
 		paths = append(paths, path)
 		return
 	}
-	if cave[0] >= 'a' && cave[0] <= 'z' && cave_in_path(cave, path) {
+
+	if cave[0] >= 'a' && cave[0] <= 'z' && count_cave_in_path(cave, path) > max_count {
 		//fmt.Printf("Skipping %s for %s\n", cave, path)
 		return
 	}
+	if cave[0] >= 'a' && cave[0] <= 'z' && count_cave_in_path(cave, path) == max_count && max_count > 0 {
+		max_count--
+	}
 	//fmt.Println("Adding cave to path:", cave)
 	path = append(path, cave)
+
 	for _, nextcave := range cavemap[cave] {
-		find_paths(cavemap, nextcave, path)
+		find_paths(cavemap, nextcave, path, max_count)
 	}
 }
 
@@ -66,8 +73,11 @@ func main() {
 			cavemap[caves[1]] = []string{caves[0]}
 		}
 	}
-	find_paths(cavemap, "start", []string{})
+	find_paths(cavemap, "start", []string{}, 0)
 	//fmt.Println(paths)
+	fmt.Println(len(paths))
+	paths = [][]string{}
+	find_paths(cavemap, "start", []string{}, 1)
 	fmt.Println(len(paths))
 
 	/*
