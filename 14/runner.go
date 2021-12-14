@@ -4,11 +4,14 @@ import (
 	"bufio"
 	"fmt"
 	"log"
+	"math"
 	"os"
 	"strings"
 )
 
 type Digraph map[string]byte
+
+type Pattern map[string]int
 
 type Insert struct {
 	index uint
@@ -38,10 +41,44 @@ func step(pattern []byte, digraphs Digraph) []byte {
 	return pattern
 }
 
+func step_patternmap(patternmap Pattern, digraphs Digraph) Pattern {
+	inserted := make(Pattern)
+	// for instance we have NN -> B
+	// So we have NBN, and we now add an NB and an BN
+	for k, v := range patternmap {
+		var newv [2]byte
+		newc := digraphs[string(k)]
+		newv[0] = k[0]
+		newv[1] = newc
+		inserted[string(newv[:])] += v
+		newv[0] = newc
+		newv[1] = k[1]
+		inserted[string(newv[:])] += v
+	}
+
+	return inserted
+}
+
 func count_chars(pattern []byte) map[byte]int {
 	counts := make(map[byte]int)
 	for _, c := range pattern {
 		counts[c]++
+	}
+	return counts
+}
+
+func count_chars2(patternmap Pattern) map[byte]uint64 {
+	counts := make(map[byte]uint64)
+	for dg, c := range patternmap {
+		counts[dg[0]] += uint64(c)
+		counts[dg[1]] += uint64(c)
+	}
+	//We double because say we have NBNC
+	//We will count the NB 1 1, then the B N 1 1
+	//dp 2 N and 2 B - we will need to add the first
+	//char once more at teh end...
+	for b, count := range counts {
+		counts[b] = count / 2
 	}
 	return counts
 }
@@ -56,10 +93,15 @@ func main() {
 	scanner := bufio.NewScanner(file)
 	index := 0
 	digraphs := make(Digraph)
+	patternmap := make(Pattern)
 	var pattern []byte
 	for scanner.Scan() {
 		if index == 0 {
 			pattern = scanner.Bytes()
+			for i := 0; i <= len(pattern)-2; i++ {
+				patternmap[string(pattern[i:i+2])]++
+			}
+
 			index++
 			continue
 		}
@@ -72,13 +114,15 @@ func main() {
 		digraphs[parts[0]] = parts[1][0]
 		index++
 	}
+	fmt.Println(patternmap)
 
 	for i := 1; i <= 10; i++ {
 		pattern = step(pattern, digraphs)
-		//fmt.Println("pattern at step ", i, ":", string(pattern[0:len(pattern)]))
-		fmt.Println(i, " - ", len(pattern))
 	}
 	counts := count_chars(pattern)
+	for k, v := range counts {
+		fmt.Println(string(k), " -> ", v)
+	}
 	maxv := 0
 	minv := len(pattern)
 	for _, v := range counts {
@@ -90,4 +134,28 @@ func main() {
 		}
 	}
 	fmt.Println(maxv - minv)
+
+	for i := 1; i <= 40; i++ {
+		patternmap = step_patternmap(patternmap, digraphs)
+	}
+
+	counts2 := count_chars2(patternmap)
+	// dividing by 2 we undercount the first and last characters, which are fixed in place!
+	counts2[pattern[0]] += 1
+	counts2[pattern[len(pattern)-1]] += 1
+	for k, v := range counts2 {
+		fmt.Println(string(k), " -> ", v)
+	}
+
+	maxv2 := uint64(0)
+	minv2 := uint64(math.MaxUint64)
+	for _, v := range counts2 {
+		if v > maxv2 {
+			maxv2 = v
+		}
+		if v < minv2 {
+			minv2 = v
+		}
+	}
+	fmt.Println(maxv2 - minv2)
 }
