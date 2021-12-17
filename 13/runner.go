@@ -64,14 +64,12 @@ func main() {
 			continue
 		}
 		coords := strings.Split(line, ",")
-		//fmt.Println(coords, line)
 		point := Point{clean_atoi(coords[0]), clean_atoi(coords[1])}
 		paper[point] = true
 	}
 
 	for i, fold := range folds {
 		parts := strings.Split(fold, "=")
-		//fmt.Println("-->", folds, parts)
 		if parts[0] == "x" {
 			paper = fold_x(paper, clean_atoi(parts[1]))
 		} else {
@@ -82,6 +80,8 @@ func main() {
 		}
 	}
 
+	// TBH, note sure we we need to transpose it before printing, but...
+	// Put it into a sparse graph at this point, and print the letters
 	var paper2 [10][50]int
 
 	for x, _ := range paper {

@@ -51,6 +51,7 @@ func packet_id(input []byte) int {
 }
 
 func extract_literal(input []byte) (int, int) {
+	fmt.Println("literal")
 	literal := make([]byte, 0)
 	lasti := 0
 	for i := 6; i+4 < len(input); i += 5 {
@@ -77,14 +78,24 @@ func length_type(input []byte) int {
 
 func extract_length_packet(input []byte) ([]Packet, int) {
 	packets := make([]Packet, 0)
-	length, _ := strconv.ParseInt(string(input[7:22]), 2, 32)
-	fmt.Println("Lenght inside... ", length)
-	return packets, 0
+	length, _ := strconv.ParseInt(string(input[7:21]), 2, 32)
+	fmt.Println("%s", string(input))
+	fmt.Println("Length: ", length)
+	i := 22
+	for i < int(22+length) {
+		newpackets, n := parse_packet(input[i:])
+		packets = append(packets, newpackets...)
+		i += n
+
+	}
+	return packets, int(i + 22 + int(length))
 
 }
 
 func extract_count_packet(input []byte) ([]Packet, int) {
 	packets := make([]Packet, 0)
+	count, _ := strconv.ParseInt(string(input[7:18]), 2, 32)
+	fmt.Println("Count: ", count)
 	return packets, 0
 }
 
@@ -141,8 +152,8 @@ func main() {
 		fmt.Println(p)
 	}
 	ip := input_to_bits([]byte("EE00D40C823060"))
-
 	fmt.Println("Len type: ", length_type(ip))
+	a, _ := extract_length_packet(ip)
 
 	ip = input_to_bits([]byte("38006F45291200"))
 	fmt.Println("Len type: ", length_type(ip))
@@ -153,8 +164,8 @@ func main() {
 	fmt.Printf("Version: %d\n", version(ip))
 	fmt.Printf("Id: %d\n", packet_id(ip))
 	fmt.Printf("Lentght Type: %d\n", length_type((ip)))
-	y, _ := extract_length_packet(ip)
-	fmt.Println(y)
+	//y, _ := extract_length_packet(ip)
+	fmt.Println("-", a)
 
 	/*
 		output := input_to_bits([]byte("ABC123"))
