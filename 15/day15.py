@@ -1,7 +1,7 @@
 import sys
 import heapq
 from collections import defaultdict
-from math import inf
+from math import inf, floor
 
 import aocd
 
@@ -85,3 +85,25 @@ def solve1(cavern):
     
 
 print(solve1(cavern))
+
+
+def get_val(x,y, max_x, max_y):
+    xsub = floor(x/max_x)
+    ysub= floor(y/max_y)
+    risk = cavern[x%max_x][y%max_y]
+    new_risk = (risk + xsub + ysub -1) %9 + 1
+    return new_risk
+
+fulli = len(cavern) * 5
+fullj = len(cavern[0]) *5
+basei = len(cavern)
+basej = len(cavern[0])
+
+
+bigcavern = [[] for i in range(fulli)]
+for i in range(fulli):
+    for j in range(fullj):
+        bigcavern[i].append(get_val(i,j, basei, basej))
+
+print(bigcavern)
+print(solve1(bigcavern))
